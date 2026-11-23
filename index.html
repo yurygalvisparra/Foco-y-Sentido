@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Tablero de Visión - SENA Regional Santander</title>
+  <style>
+    :root {
+      --bg-dark: #071124;
+      --bg-card: #0e1d3b;
+      --bg-input: #142850;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-sena: #39a900;
+      --accent-cyan: #00d2ff;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, #10254d 0%, var(--bg-dark) 60%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      background: rgba(7, 17, 36, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 1.25rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--accent-sena), #2b8000);
+      color: #fff;
+      font-weight: 800;
+      padding: 0.45rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(57, 169, 0, 0.3);
+    }
+
+    .brand-title h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand-title p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Progress Bar */
+    .progress-wrapper {
+      width: 100%;
+      max-width: 960px;
+      margin: 1.5rem auto 0;
+      padding: 0 1.5rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-sena));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    /* Step Pills Navigation */
+    .step-nav {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 1rem 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+      scrollbar-width: thin;
+    }
+
+    .step-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .step-pill:hover {
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+
+    .step-pill.active {
+      color: #fff;
+      border-color: transparent;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 960px;
+      margin: 0.5rem auto 2.5rem;
+      padding: 0 1.5rem;
+    }
+
+    .panel {
+      display: none;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+      animation: fadeSlide 0.35s ease forwards;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .panel-banner {
+      padding: 1.75rem 2rem;
+      color: #fff;
+      position: relative;
+    }
+
+    .panel-banner .area-tag {
+      display: inline-block;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel-banner h2 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      margin-bottom: 0.35rem;
+    }
+
+    .panel-banner p {
+      font-size: 0.95rem;
+      opacity: 0.92;
+      max-width: 680px;
+    }
+
+    .panel-body {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Form Controls */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.98rem;
+      color: #e2e8f0;
+    }
+
+    .hint {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-top: -0.25rem;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      color: #fff;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      background: #193263;
+      box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.15);
+    }
+
+    textarea {
+      min-height: 82px;
+    }
+
+    /* Color Palette Grid */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.35rem;
+    }
+
+    .color-option {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--bg-input);
+      border: 2px solid transparent;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .color-option:hover {
+      background: #1a3466;
+    }
+
+    .color-option.selected {
+      border-color: #fff;
+      background: #1e3b73;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .color-option span {
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    /* Photo Options */
+    .photo-modes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin-top: 0.3rem;
+    }
+
+    .radio-card {
+      background: var(--bg-input);
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .radio-card.selected {
+      border-color: var(--accent-cyan);
+      background: #1a3568;
+    }
+
+    .radio-card strong {
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .radio-card small {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .upload-box {
+      margin-top: 0.75rem;
+      padding: 1.25rem;
+      border: 2px dashed rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-md);
+      text-align: center;
+      background: rgba(20, 40, 80, 0.5);
+      display: none;
+    }
+
+    .upload-box.visible {
+      display: block;
+    }
+
+    .photo-preview {
+      max-width: 140px;
+      max-height: 140px;
+      border-radius: 12px;
+      margin: 0.75rem auto 0;
+      display: none;
+      object-fit: cover;
+      border: 2px solid var(--accent-cyan);
+    }
+
+    /* Navigation Buttons */
+    .panel-footer {
+      padding: 1.25rem 2rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-md);
+      border: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 114, 255, 0.5);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--accent-sena), #277500);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(57, 169, 0, 0.35);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(57, 169, 0, 0.5);
+    }
+
+    /* Result Output Area */
+    .output-box {
+      background: #060e1f;
+      border: 1px solid rgba(0, 210, 255, 0.35);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      max-height: 430px;
+      overflow-y: auto;
+      line-height: 1.55;
+    }
+
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent-sena);
+      color: #fff;
+      padding: 0.8rem 1.3rem;
+      border-radius: 10px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transform: translateY(15px);
+      pointer-events: none;
+      transition: var(--transition);
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      background: #040a17;
+      border-top: 1px solid var(--border-subtle);
+      text-align: center;
+      padding: 1.35rem 1rem;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      margin-top: auto;
+    }
+
+    footer strong {
+      color: #fff;
+    }
+
+    @media (max-width: 640px) {
+      .panel-banner, .panel-body, .panel-footer {
+        padding: 1.25rem;
+      }
+      .panel-banner h2 {
+        font-size: 1.35rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-badge">SENA</div>
+      <div class="brand-title">
+        <h1>Constructor de Tablero de Visión (Visual Board)</h1>
+        <p>Proyecto de Vida · Regional Santander</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="progress-wrapper">
+    <div class="progress-header">
+      <span id="step-indicator">Paso 1 de 9 · Configuración Inicial</span>
+      <span id="progress-percent">11%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <nav class="step-nav" id="step-nav" aria-label="Navegación por áreas"></nav>
+
+  <main id="panels-container">
+    <!-- Panel 0: Datos Iniciales -->
+    <section class="panel active" data-step="0" data-color="#1d4ed8">
+      <div class="panel-banner" style="background: linear-gradient(135deg, #1e3a8a, #2563eb);">
+        <span class="area-tag">Paso Inicial</span>
+        <h2>Personaliza tu Tablero de Visión</h2>
+        <p>Antes de explorar tus 7 áreas de vida, define la identidad visual y el estilo de tu futuro tablero.</p>
+      </div>
+      <div class="panel-body">
+        <div class="form-group">
+          <label for="board-name">1. ¿Qué nombre o título quieres darle a tu tablero de visión?</label>
+          <span class="hint">Ejemplo: "Mi 2027 imparable", "Construyendo mi mejor versión", "Ruta al éxito profesional".</span>
+          <input type="text" id="board-name" placeholder="Escribe el título de tu tablero..." />
+        </div>
+
+        <div class="form-group">
+          <label>2. Selecciona tus colores favoritos para ambientar tu tablero (puedes elegir varios):</label>
+          <div class="color-grid" id="color-grid"></div>
+        </div>
+
+        <div class="form-group">
+          <label>3. Referencia fotográfica para la imagen central:</label>
+          <div class="photo-modes" id="photo-modes">
+            <div class="radio-card selected" data-mode="generico">
+              <strong>Estilo ilustrativo / genérico</strong>
+              <small>Representar a una persona joven/adulta en formación sin usar foto personal.</small>
+            </div>
+            <div class="radio-card" data-mode="web">
+              <strong>Referencia visual inspiracional</strong>
+              <small>Usar composiciones fotográficas aspiracionales y símbolos visuales de la web.</small>
+            </div>
+            <div class="radio-card" data-mode="propia">
+              <strong>Subir mi propia fotografía</strong>
+              <small>Incluir referencia de mi foto personal para integrarla en el generador de imagen.</small>
+            </div>
+          </div>
+
+          <div class="upload-box" id="upload-box">
+            <label for="photo-input" style="cursor:pointer; color: var(--accent-cyan);">
+              Haz clic aquí para seleccionar tu foto (JPG, PNG o WEBP)
+            </label>
+            <input type="file" id="photo-input" accept="image/*" style="display:none;" />
+            <p id="file-name-display" class="hint" style="margin-top:0.5rem;">Ningún archivo seleccionado</p>
+            <img id="photo-preview" class="photo-preview" alt="Vista previa de tu fotografía" />
+          </div>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <button class="btn btn-secondary" disabled>Anterior</button>
+        <button class="btn btn-primary" onclick="goToStep(1)">Comenzar Cuestionario →</button>
+      </div>
+    </section>
+
+    <!-- Los paneles 1 al 7 se renderizan dinámicamente desde JavaScript -->
+
+    <!-- Panel 8: Resultado Final y Descarga -->
+    <section class="panel" data-step="8" data-color="#059669">
+      <div class="panel-banner" style="background: linear-gradient(135deg, #065f46, #10b981);">
+        <span class="area-tag">Resultado Final</span>
+        <h2>Tu Prompt Unificado de Proyecto de Vida</h2>
+        <p>Copia o descarga este texto completo y pégalo en tu herramienta de generación de imágenes con IA favorita (como Gemini, Midjourney, DALL·E o Ideogram).</p>
+      </div>
+      <div class="panel-body">
+        <div class="action-bar">
+          <button class="btn btn-primary" onclick="copyPrompt()">📋 Copiar Prompt Completo</button>
+          <button class="btn btn-success" onclick="downloadPrompt()">⬇️ Descargar Archivo (.txt)</button>
+        </div>
+        <div class="output-box" id="final-output"></div>
+      </div>
+      <div class="panel-footer">
+        <button class="btn btn-secondary" onclick="goToStep(7)">← Volver a Propósito</button>
+        <button class="btn btn-secondary" onclick="goToStep(0)">Editar desde el inicio</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Elaborado por: <strong>Yury Marcela Galvis Parra</strong>. SENA Regional Santander. Centro de Servicios Empresariales y Turísticos.
+  </footer>
+
+  <div class="toast" id="toast">¡Texto copiado al portapapeles!</div>
+
+  <script>
+    const PALETTE = [
+      { name: "Verde Esmeralda", hex: "#10b981" },
+      { name: "Azul Rey", hex: "#2563eb" },
+      { name: "Dorado Solar", hex: "#f59e0b" },
+      { name: "Coral Vibrante", hex: "#f43f5e" },
+      { name: "Violeta Creativo", hex: "#8b5cf6" },
+      { name: "Turquesa", hex: "#06b6d4" },
+      { name: "Naranja Energía", hex: "#f97316" },
+      { name: "Blanco Perla", hex: "#f8fafc" },
+      { name: "Negro Elegante", hex: "#1e293b" },
+      { name: "Rosa Cuarzo", hex: "#ec4899" }
+    ];
+
+    const AREAS = [
+      {
+        id: "salud",
+        title: "1. Salud y bienestar",
+        short: "Salud",
+        subtitle: "Cuidado físico, deporte, alimentación, salud mental y descanso emocional.",
+        gradient: "linear-gradient(135deg, #059669, #10b981)",
+        pillColor: "#10b981",
+        questions: [
+          "¿Cómo te gustaría sentirte física y mentalmente en tu día a día dentro de un año?",
+          "¿Qué deporte, actividad física o hábito de movimiento quieres incorporar o mantener en tu rutina?",
+          "¿Qué cambios positivos deseas lograr en tu alimentación y en la calidad de tu descanso?",
+          "¿Qué prácticas te ayudan a cuidar tu salud mental y liberar el estrés de los estudios o el trabajo?"
+        ]
+      },
+      {
+        id: "trabajo",
+        title: "2. Trabajo y carrera",
+        short: "Trabajo",
+        subtitle: "Crecimiento profesional, proyectos, emprendimientos o metas laborales.",
+        gradient: "linear-gradient(135deg, #ea580c, #f97316)",
+        pillColor: "#f97316",
+        questions: [
+          "¿En qué sector, empresa o tipo de cargo te visualizas trabajando al terminar tu formación en el SENA?",
+          "Si sueñas con emprender, ¿qué producto, servicio o negocio propio te gustaría crear?",
+          "¿Qué logros profesionales o reconocimientos te harían sentir profundamente orgulloso(a)?",
+          "¿Cómo imaginas tu ambiente laboral ideal y el impacto que generarás con tu talento?"
+        ]
+      },
+      {
+        id: "finanzas",
+        title: "3. Finanzas y economía",
+        short: "Finanzas",
+        subtitle: "Ahorro, inversión, ingresos deseados o estabilidad económica.",
+        gradient: "linear-gradient(135deg, #d97706, #eab308)",
+        pillColor: "#eab308",
+        questions: [
+          "¿Qué significa para ti tener tranquilidad y estabilidad económica en esta etapa de tu vida?",
+          "¿Qué metas de ahorro o inversión te gustaría alcanzar a corto y mediano plazo?",
+          "¿Qué fuentes de ingresos adicionales o proyectos financieros te gustaría desarrollar?",
+          "¿Qué hábitos financieros responsables quieres fortalecer para cumplir tus sueños sin deudas innecesarias?"
+        ]
+      },
+      {
+        id: "relaciones",
+        title: "4. Relaciones",
+        short: "Relaciones",
+        subtitle: "Familia, pareja, amistades y vida social o comunitaria.",
+        gradient: "linear-gradient(135deg, #e11d48, #f43f5e)",
+        pillColor: "#f43f5e",
+        questions: [
+          "¿Cómo quieres fortalecer los lazos con tu familia y las personas que más amas?",
+          "¿Qué cualidades valoras en tus amistades y en una relación de pareja sana y constructiva?",
+          "¿Qué momentos especiales o celebraciones te gustaría compartir con tu círculo cercano?",
+          "¿De qué manera te gustaría participar o aportar en tu comunidad o grupo social?"
+        ]
+      },
+      {
+        id: "crecimiento",
+        title: "5. Crecimiento personal y aprendizaje",
+        short: "Aprendizaje",
+        subtitle: "Educación, nuevos idiomas, habilidades, hobbies o creatividad.",
+        gradient: "linear-gradient(135deg, #7c3aed, #9333ea)",
+        pillColor: "#9333ea",
+        questions: [
+          "Además de tu formación actual, ¿qué nuevos estudios, certificaciones o idiomas quieres dominar?",
+          "¿Qué habilidades técnicas o blandas (liderazgo, comunicación, tecnología) deseas potenciar?",
+          "¿Qué hobby, arte o actividad creativa te gustaría explorar o retomar para disfrutar tu tiempo libre?",
+          "¿Qué libros, cursos o experiencias de aprendizaje quieres integrar en tu vida este año?"
+        ]
+      },
+      {
+        id: "estilo",
+        title: "6. Estilo de vida y experiencias",
+        short: "Estilo de vida",
+        subtitle: "Viajes, entorno o vivienda, hábitos diarios, ocio y metas materiales.",
+        gradient: "linear-gradient(135deg, #0284c7, #06b6d4)",
+        pillColor: "#06b6d4",
+        questions: [
+          "¿Qué lugares de Colombia o del mundo sueñas con conocer y qué experiencias te gustaría vivir allí?",
+          "¿Cómo imaginas el espacio o vivienda ideal donde te gustaría vivir y sentirte en paz?",
+          "¿Qué metas materiales (vehículo, equipo tecnológico, herramientas de trabajo) quieres conseguir con tu esfuerzo?",
+          "¿Cómo sería un fin de semana ideal disfrutando de tu tiempo libre y tus pasatiempos?"
+        ]
+      },
+      {
+        id: "proposito",
+        title: "7. Propósito y espiritualidad",
+        short: "Propósito",
+        subtitle: "Valores, sentido de vida, contribución o prácticas espirituales.",
+        gradient: "linear-gradient(135deg, #4f46e5, #6366f1)",
+        pillColor: "#6366f1",
+        questions: [
+          "¿Cuáles son los tres valores fundamentales que guían tus decisiones y tu proyecto de vida?",
+          "¿De qué forma te gustaría ayudar a otras personas o dejar una huella positiva en la sociedad?",
+          "¿Qué prácticas espirituales, de meditación, gratitud o conexión interior te dan paz y claridad?",
+          "Cuando mires atrás en unos años, ¿por qué te gustaría ser recordado(a) por quienes te rodean?"
+        ]
+      }
+    ];
+
+    let currentStep = 0;
+    const selectedColors = new Set(["Verde Esmeralda", "Azul Rey"]);
+    let photoMode = "generico";
+    let uploadedFileName = "";
+
+    // Inicializar paleta de colores
+    const colorGrid = document.getElementById("color-grid");
+    PALETTE.forEach(color => {
+      const div = document.createElement("div");
+      div.className = "color-option" + (selectedColors.has(color.name) ? " selected" : "");
+      div.innerHTML = `<span class="swatch" style="background:${color.hex}"></span><span>${color.name}</span>`;
+      div.onclick = () => {
+        if (selectedColors.has(color.name)) {
+          selectedColors.delete(color.name);
+          div.classList.remove("selected");
+        } else {
+          selectedColors.add(color.name);
+          div.classList.add("selected");
+        }
+      };
+      colorGrid.appendChild(div);
+    });
+
+    // Inicializar opciones de fotografía
+    const radioCards = document.querySelectorAll(".radio-card");
+    const uploadBox = document.getElementById("upload-box");
+    const photoInput = document.getElementById("photo-input");
+    const photoPreview = document.getElementById("photo-preview");
+    const fileNameDisplay = document.getElementById("file-name-display");
+
+    radioCards.forEach(card => {
+      card.onclick = () => {
+        radioCards.forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        photoMode = card.dataset.mode;
+        uploadBox.classList.toggle("visible", photoMode === "propia");
+      };
+    });
+
+    photoInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadedFileName = file.name;
+        fileNameDisplay.textContent = `Archivo cargado: ${file.name}`;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          photoPreview.src = ev.target.result;
+          photoPreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    // Renderizar paneles de las 7 áreas
+    const panelsContainer = document.getElementById("panels-container");
+    const resultPanel = panelsContainer.querySelector('[data-step="8"]');
+
+    AREAS.forEach((area, index) => {
+      const stepNum = index + 1;
+      const section = document.createElement("section");
+      section.className = "panel";
+      section.dataset.step = stepNum;
+      section.dataset.color = area.pillColor;
+
+      const questionsHTML = area.questions.map((q, qIdx) => `
+        <div class="form-group">
+          <label for="${area.id}-q${qIdx}">${q}</label>
+          <textarea id="${area.id}-q${qIdx}" placeholder="Escribe aquí tu respuesta con total libertad..."></textarea>
+        </div>
+      `).join("");
+
+      const isLastArea = stepNum === AREAS.length;
+      const nextBtn = isLastArea
+        ? `<button class="btn btn-success" onclick="generateFinalPrompt()">✨ Generar Prompt Final</button>`
+        : `<button class="btn btn-primary" onclick="goToStep(${stepNum + 1})">Siguiente Área →</button>`;
+
+      section.innerHTML = `
+        <div class="panel-banner" style="background: ${area.gradient};">
+          <span class="area-tag">Área ${stepNum} de 7</span>
+          <h2>${area.title}</h2>
+          <p>${area.subtitle}</p>
+        </div>
+        <div class="panel-body">
+          ${questionsHTML}
+        </div>
+        <div class="panel-footer">
+          <button class="btn btn-secondary" onclick="goToStep(${stepNum - 1})">← Anterior</button>
+          ${nextBtn}
+        </div>
+      `;
+
+      panelsContainer.insertBefore(section, resultPanel);
+    });
+
+    // Renderizar navegación superior (pills)
+    const stepNav = document.getElementById("step-nav");
+    const navItems = [
+      { step: 0, label: "Inicio", color: "#2563eb" },
+      ...AREAS.map((a, i) => ({ step: i + 1, label: a.short, color: a.pillColor })),
+      { step: 8, label: "Prompt Final", color: "#10b981" }
+    ];
+
+    navItems.forEach(item => {
+      const btn = document.createElement("button");
+      btn.className = "step-pill" + (item.step === 0 ? " active" : "");
+      btn.dataset.step = item.step;
+      btn.dataset.color = item.color;
+      btn.textContent = item.label;
+      btn.onclick = () => {
+        if (item.step === 8) {
+          generateFinalPrompt();
+        } else {
+          goToStep(item.step);
+        }
+      };
+      stepNav.appendChild(btn);
+    });
+
+    function goToStep(step) {
+      currentStep = step;
+      document.querySelectorAll(".panel").forEach(p => {
+        p.classList.toggle("active", Number(p.dataset.step) === step);
+      });
+
+      document.querySelectorAll(".step-pill").forEach(pill => {
+        const isActive = Number(pill.dataset.step) === step;
+        pill.classList.toggle("active", isActive);
+        pill.style.background = isActive ? pill.dataset.color : "";
+      });
+
+      const percent = Math.round(((step + 1) / 9) * 100);
+      document.getElementById("progress-fill").style.width = `${percent}%`;
+      document.getElementById("progress-percent").textContent = `${percent}%`;
+
+      const stepNames = [
+        "Configuración Inicial",
+        "1. Salud y bienestar",
+        "2. Trabajo y carrera",
+        "3. Finanzas y economía",
+        "4. Relaciones",
+        "5. Crecimiento personal y aprendizaje",
+        "6. Estilo de vida y experiencias",
+        "7. Propósito y espiritualidad",
+        "Resultado y Descarga"
+      ];
+      document.getElementById("step-indicator").textContent = `Paso ${step + 1} de 9 · ${stepNames[step]}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function generateFinalPrompt() {
+      const boardName = document.getElementById("board-name").value.trim() || "Mi Proyecto de Vida SENA";
+      const colorsList = selectedColors.size > 0
+        ? Array.from(selectedColors).join(", ")
+        : "Verde Esmeralda, Azul Rey y Dorado Solar";
+
+      let photoDescription = "";
+      let photoSummary = "";
+      if (photoMode === "propia") {
+        const fileNote = uploadedFileName ? ` (archivo adjunto: ${uploadedFileName})` : "";
+        photoDescription = `En el centro del tablero aparece el retrato protagonista del estudiante basado en su fotografía personal subida${fileNote}, con expresión segura, inspiradora y sonriente.`;
+        photoSummary = `Fotografía propia del estudiante${fileNote}`;
+      } else if (photoMode === "web") {
+        photoDescription = "En el centro del tablero se integran fotografías editoriales inspiracionales de alta calidad que simbolizan éxito, aprendizaje y bienestar.";
+        photoSummary = "Referencia visual inspiracional de la web";
+      } else {
+        photoDescription = "En el centro del tablero aparece una ilustración moderna y aspiracional de un(a) estudiante en formación profesional rodeado(a) de sus metas.";
+        photoSummary = "Estilo ilustrativo / genérico";
+      }
+
+      let resumenAreas = "";
+      let escenasVisuales = [];
+
+      AREAS.forEach(area => {
+        const respuestasArea = [];
+        area.questions.forEach((q, idx) => {
+          const val = document.getElementById(`${area.id}-q${idx}`).value.trim();
+          if (val) {
+            respuestasArea.push(`  - ${q}\n    Respuesta: ${val}`);
+            escenasVisuales.push(val);
+          }
+        });
+
+        resumenAreas += `\n[${area.title.toUpperCase()}]\n`;
+        resumenAreas += respuestasArea.length > 0
+          ? respuestasArea.join("\n")
+          : "  - (Sin respuestas registradas en esta área; representar bienestar integral y equilibrio).";
+        resumenAreas += "\n";
+      });
+
+      const elementosClave = escenasVisuales.length > 0
+        ? escenasVisuales.join("; ")
+        : "salud integral, éxito profesional SENA, estabilidad financiera, armonía familiar, aprendizaje continuo, viajes y propósito de vida";
+
+      const promptUniversal = `====================================================================
+PARTE A: PROMPT UNIVERSAL PARA GENERAR IMAGEN DE TABLERO DE VISIÓN
+====================================================================
+Crea un tablero de visión (vision board) estilo collage estético, moderno y altamente inspirador en formato horizontal 16:9, titulado en tipografía elegante y luminosa: "${boardName}". 
+
+Composición y estilo visual:
+- Paleta de colores dominante: ${colorsList}, con iluminación cálida, acabados tipo fotografía editorial, recortes limpios, notas adhesivas minimalistas, polaroids y elementos gráficos modernos sobre un fondo armonioso.
+- Protagonista central: ${photoDescription}
+- Escenas visuales integradas alrededor del centro que representan las 7 dimensiones del proyecto de vida del estudiante:
+  1. Salud y bienestar: vitalidad física, deporte, alimentación saludable y calma mental.
+  2. Trabajo y carrera: desarrollo profesional, innovación, emprendimiento y logros laborales.
+  3. Finanzas y economía: prosperidad, ahorro inteligente, crecimiento económico y estabilidad.
+  4. Relaciones: unión familiar, afecto, amistad sincera y trabajo en comunidad.
+  5. Crecimiento personal y aprendizaje: estudio continuo, libros, tecnología, creatividad y nuevas habilidades.
+  6. Estilo de vida y experiencias: viajes soñados, hogar acogedor y metas materiales alcanzadas.
+  7. Propósito y espiritualidad: gratitud, valores humanos, servicio social y paz interior.
+
+Detalles específicos del proyecto de vida a visualizar en las escenas:
+${elementosClave}.
+
+Calidad artística: Ultra detallado, composición equilibrada y organizada en cuadrícula creativa tipo moodboard profesional, estética motivacional, luz natural vibrante, sin texto deformado, alta resolución 8k.`;
+
+      const resumenEstudiante = `
+====================================================================
+PARTE B: RESUMEN DEL PROYECTO DE VIDA DEL ESTUDIANTE
+====================================================================
+• Nombre del tablero de visión: ${boardName}
+• Colores favoritos seleccionados: ${colorsList}
+• Referencia de imagen elegida: ${photoSummary}
+• Institución: SENA Regional Santander - Centro de Servicios Empresariales y Turísticos
+${resumenAreas}
+====================================================================
+Elaborado por: Yury Marcela Galvis Parra. SENA Regional Santander. Centro de Servicios Empresariales y Turísticos.`;
+
+      document.getElementById("final-output").textContent = `${promptUniversal}\n${resumenEstudiante}`;
+      goToStep(8);
+    }
+
+    function copyPrompt() {
+      const text = document.getElementById("final-output").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2800);
+      });
+    }
+
+    function downloadPrompt() {
+      const text = document.getElementById("final-output").textContent;
+      const boardName = document.getElementById("board-name").value.trim() || "tablero-vision-sena";
+      const safeFileName = boardName.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi, "-") + ".txt";
+
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = safeFileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Inicializar estado de barra de progreso
+    goToStep(0);
+  </script>
+</body>
+</html>
